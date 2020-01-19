@@ -76,6 +76,11 @@ namespace Flare_Client_Launcher
             wc.DownloadFile(url, dest);
         }
 
+        public static void launchMinecraft()
+        {
+            Process.Start("minecraft://");
+        }
+
         public static void saveVersion(string version)
         {
             if (!flareVerFile.Exists)

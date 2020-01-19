@@ -5,7 +5,6 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,13 +13,11 @@ namespace Flare_Client_Launcher
     public partial class Splash : Form
     {
         static Splash instance;
-        bool retry = true;
-        public delegate void refreshThis();
-        public delegate void setBg(int r, int g, int b);
 
         public static void updateStatus(string status)
         {
             instance.statusLabel.Text = status;
+            instance.Refresh();
         }
 
         public Splash()
@@ -31,37 +28,34 @@ namespace Flare_Client_Launcher
 
         private void Splash_Load(object sender, EventArgs e)
         {
-            Thread brightThread = new Thread(()=>
+            Timer brightTimer = new Timer();
+            byte brightness = 40;
+            bool dec = true;
+            brightTimer.Tick+=(object s, EventArgs a)=>
             {
-                byte brightness = 40;
-                bool dec=true;
-                while (true)
+                if (brightness > 40)
                 {
-                    if (brightness > 40)
-                    {
-                        dec = true;
-                    }
-                    else if (brightness < 20)
-                    {
-                        dec = false;
-                    }
-                    if (dec)
-                    {
-                        brightness--;
-                    }
-                    else
-                    {
-                        brightness++;
-                    }
-                    instance.BackColor = Color.FromArgb(brightness, brightness, brightness);
-                    Thread.Sleep(100);
+                    dec = true;
                 }
-            });
-            brightThread.Start();
-            while (retry)
-            {
-                loadFlare();
-            }
+                else if (brightness < 20)
+                {
+                    dec = false;
+                }
+                if (dec)
+                {
+                    brightness--;
+                }
+                else
+                {
+                    brightness++;
+                }
+                this.BackColor = Color.FromArgb(brightness, brightness, brightness); 
+                this.Refresh();
+            };
+            brightTimer.Interval = 100;
+            brightTimer.Start();
+
+            loadFlare();
         }
         public static void downloadHLFlare()
         {
@@ -83,46 +77,56 @@ namespace Flare_Client_Launcher
         public void loadFlare()
         {
             this.CenterToScreen();
+            this.TopMost = true;
             updateStatus("Loading...");
-            for (byte b = 3; b > 0; b--)
+            Timer countDown = new Timer();
+            byte count = 4;
+            countDown.Tick += (object s, EventArgs a) =>
             {
+                count--;
                 this.Refresh();
-                updateStatus("Launching in " + b);
+                updateStatus("Launching in " + count);
                 this.Refresh();
-                Thread.Sleep(1000);
-            }
-            updateStatus("Checking for Minecraft...");
-            if (!BootMethods.isMinecraftRunning())
-            {
-                MessageBox.Show("Please run Flare with Minecraft open!");
-                return;
-            }
-            updateStatus("Checking for Flare...");
-            if (BootMethods.isFlareFresh())
-            {
-                MessageBox.Show("First time? <3");
-                BootMethods.flareFiles.Create();
-            }
-            if (!BootMethods.isFlareDownloaded())
-            {
-                if (BootMethods.getLatestSavedVersion() == "None")
+                if (count == 0)
                 {
-                    downloadHLFlare();
-                }
-                else
-                {
-                    if (ver2uint(BootMethods.getLatestVersion()) > ver2uint(BootMethods.getLatestSavedVersion()))
+                    count = 4;
+                    updateStatus("Checking for Minecraft...");
+                    if (!BootMethods.isMinecraftRunning())
                     {
-                        downloadHLFlare();
+                        updateStatus("Launching Minecraft...");
+                        BootMethods.launchMinecraft();
+                        return;
                     }
+                    updateStatus("Checking for Flare...");
+                    if (BootMethods.isFlareFresh())
+                    {
+                        updateStatus("First time? <3");
+                        BootMethods.flareFiles.Create();
+                    }
+                    if (!BootMethods.isFlareDownloaded())
+                    {
+                        if (BootMethods.getLatestSavedVersion() == "None")
+                        {
+                            downloadHLFlare();
+                        }
+                        else
+                        {
+                            if (ver2uint(BootMethods.getLatestVersion()) > ver2uint(BootMethods.getLatestSavedVersion()))
+                            {
+                                downloadHLFlare();
+                            }
+                        }
+                    }
+                    if (!BootMethods.launchFlare())
+                    {
+                        MessageBox.Show("Flare failed to launch. Please try again later.");
+                    }
+                    Application.Exit();
+                    countDown.Stop();
                 }
-            }
-            if (!BootMethods.launchFlare())
-            {
-                MessageBox.Show("Flare failed to launch. Please try again later.");
-            }
-            retry = false;
-            Application.Exit();
+            };
+            countDown.Interval = 1000;
+            countDown.Start();
         }
     }
 }
