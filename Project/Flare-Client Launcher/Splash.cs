@@ -72,11 +72,6 @@ namespace Flare_Client_Launcher
             }
             BootMethods.saveVersion(latest);
         }
-        public static uint ver2uint(string ver)
-        {
-            string noExcess = ver.Replace("v", "").Replace(".","");
-            return uint.Parse(noExcess);
-        }
 
         public void loadFlare()
         {
@@ -94,6 +89,7 @@ namespace Flare_Client_Launcher
                 if (count == 0)
                 {
                     count = 4;
+                    //MessageBox.Show(BootMethods.getLatestVersion());
                     updateStatus("Checking for Minecraft...");
                     if (!BootMethods.isMinecraftRunning())
                     {
@@ -107,18 +103,15 @@ namespace Flare_Client_Launcher
                         updateStatus("First time? <3");
                         BootMethods.flareFiles.Create();
                     }
-                    if (!BootMethods.isFlareDownloaded())
+                    if (BootMethods.getLatestSavedVersion() == "None")
                     {
-                        if (BootMethods.getLatestSavedVersion() == "None")
+                        downloadHLFlare();
+                    }
+                    else
+                    {
+                        if (BootMethods.getLatestVersion() != BootMethods.getLatestSavedVersion())
                         {
                             downloadHLFlare();
-                        }
-                        else
-                        {
-                            if (ver2uint(BootMethods.getLatestVersion()) > ver2uint(BootMethods.getLatestSavedVersion()))
-                            {
-                                downloadHLFlare();
-                            }
                         }
                     }
                     if (!BootMethods.launchFlare())

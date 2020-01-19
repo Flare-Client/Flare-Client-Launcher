@@ -84,10 +84,8 @@ namespace Flare_Client_Launcher
 
         public static void saveVersion(string version)
         {
-            if (!flareVerFile.Exists)
-            {
-                flareVerFile.Create().Close();
-            }
+            flareVerFile.Delete();
+            flareVerFile.Create().Close();
             string toWrite = version + "|This file contains the latest downloaded flare version, this way we dont have to ask GitHub for the file each launch. Delete this file to force a re download or delete the FlareFromLauncher.exe";
             byte[] bytes = Encoding.UTF8.GetBytes(toWrite);
             flareVerFile.OpenWrite().Write(bytes, 0, bytes.Length);
