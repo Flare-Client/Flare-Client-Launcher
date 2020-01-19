@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,6 +14,9 @@ namespace Flare_Client_Launcher
     public partial class Splash : Form
     {
         static Splash instance;
+
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
 
         public static void updateStatus(string status)
         {
@@ -121,6 +125,7 @@ namespace Flare_Client_Launcher
                     {
                         MessageBox.Show("Flare failed to launch. Please try again later.");
                     }
+                    SetForegroundWindow(BootMethods.flare.MainWindowHandle);
                     Application.Exit();
                     countDown.Stop();
                 }

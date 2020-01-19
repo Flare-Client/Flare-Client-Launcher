@@ -15,6 +15,7 @@ namespace Flare_Client_Launcher
         public static DirectoryInfo flareFiles = new DirectoryInfo(Environment.CurrentDirectory + "/FlareFiles");
         public static FileInfo flareVerFile = new FileInfo(flareFiles.FullName + "/downloadedVer.txt");
         public static FileInfo flareExe = new FileInfo(flareFiles.FullName + "/FlareFromLauncher.exe");
+        public static Process flare;
 
         public static bool launchFlare()
         {
@@ -23,7 +24,7 @@ namespace Flare_Client_Launcher
                 return false;
             }
             Environment.CurrentDirectory = flareFiles.FullName;
-            Process.Start(flareExe.FullName);
+            flare = Process.Start(flareExe.FullName);
             return true;
         }
         public static bool isMinecraftRunning()
