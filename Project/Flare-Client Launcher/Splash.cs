@@ -13,9 +13,11 @@ namespace Flare_Client_Launcher
 {
     public partial class Splash : Form
     {
-        static byte brightness = 40;
         static Splash instance;
         bool retry = true;
+        public delegate void refreshThis();
+        public delegate void setBg(int r, int g, int b);
+
         public static void updateStatus(string status)
         {
             instance.statusLabel.Text = status;
@@ -29,31 +31,33 @@ namespace Flare_Client_Launcher
 
         private void Splash_Load(object sender, EventArgs e)
         {
-            System.Windows.Forms.Timer brightTimer = new System.Windows.Forms.Timer();
-            bool dec = false;
-            brightTimer.Tick += (object sen, EventArgs a) =>
+            Thread brightThread = new Thread(()=>
             {
-                this.Refresh();
-                if (brightness > 40)
+                byte brightness = 40;
+                bool dec=true;
+                while (true)
                 {
-                    dec = true;
+                    if (brightness > 40)
+                    {
+                        dec = true;
+                    }
+                    else if (brightness < 20)
+                    {
+                        dec = false;
+                    }
+                    if (dec)
+                    {
+                        brightness--;
+                    }
+                    else
+                    {
+                        brightness++;
+                    }
+                    instance.BackColor = Color.FromArgb(brightness, brightness, brightness);
+                    Thread.Sleep(100);
                 }
-                else if (brightness < 20)
-                {
-                    dec = false;
-                }
-                if (dec)
-                {
-                    brightness--;
-                }
-                else
-                {
-                    brightness++;
-                }
-                this.BackColor = Color.FromArgb(brightness, brightness, brightness);
-            };
-            brightTimer.Interval = 100;
-            brightTimer.Start();
+            });
+            brightThread.Start();
             while (retry)
             {
                 loadFlare();
