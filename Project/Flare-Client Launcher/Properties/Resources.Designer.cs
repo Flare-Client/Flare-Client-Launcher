@@ -63,6 +63,16 @@ namespace Flare_Client_Launcher.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap FlareLogo {
+            get {
+                object obj = ResourceManager.GetObject("FlareLogo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap image0 {
             get {
                 object obj = ResourceManager.GetObject("image0", resourceCulture);
